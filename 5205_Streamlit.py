@@ -18,8 +18,8 @@ st.title('Impact of Covid-19 on Homeless Shelter Sites')
 
 container = st.container()
 
-df1= pd.DataFrame(pd.read_csv('F:/Second term/5205/CleanedV1.1.csv'))
-df2= pd.DataFrame(pd.read_csv('F:/Second term/5205/Compiled.csv'))
+# df1= pd.DataFrame(pd.read_csv('F:/Second term/5205/CleanedV1.1.csv'))
+# df2= pd.DataFrame(pd.read_csv('F:/Second term/5205/Compiled.csv'))
 
 ###         COMPARISON BY GENDER
 
