@@ -88,7 +88,7 @@ with container:
             st.caption("One decision tree from the random forest regressor model")
             fn=X.columns
             cn=['Shelter occupancy']
-            fig = plt.figure(figsize = (5,3), dpi = 1200)
+            fig = plt.figure(figsize = (12,5), dpi = 1200)
 
             tree.plot_tree(model.estimators_[1],
                         feature_names = fn, 
