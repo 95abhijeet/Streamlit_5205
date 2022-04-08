@@ -95,7 +95,7 @@ with container:
                         class_names=cn,
                         filled=True,
                         rounded= True,
-                        fontsize=7)
+                        fontsize=3)
                            
             st.pyplot(fig)
             
