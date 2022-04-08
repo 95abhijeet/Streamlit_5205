@@ -1,7 +1,16 @@
 import streamlit as st
 import streamlit.components.v1 as  components
-
-
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn import metrics
+from sklearn.metrics import r2_score
+import matplotlib.pyplot as plt
+from sklearn import tree
+from PIL import Image
+import pickle
 
 st.set_page_config(page_title='ITEC 5205 Course Project', layout='wide')
                                                    # menu_items={
@@ -18,119 +27,7 @@ st.title('Impact of Covid-19 on Homeless Shelter Sites')
 
 container = st.container()
 
-
-###         COMPARISON BY GENDER
-
-# with container:
-    
-    
-#     st.write("Below are different categories for data analysis  \n"
-#             "Part 1 : Shelter sites types with count  \n"
-#             "Part 2 : Shelter sites capacity count distribution \n"
-#             "Part 3 : Shelter sites average capacity distribution  \n"
-#             "Part 4 : Comparison by Education  \n"
-#             "Part 5 : Additional info using Google trends")
-#     st.markdown("___")
-
-#     with st.expander("Option 1 : Comparison by Gender"):
-    
-#         st.markdown(" ")
-#         st.markdown("Please select the filters below:")
-#         city = df1['City'].unique().tolist()
-#         shelter_type = df1['ShelterType'].unique().tolist()
-#         year = df1['YEAR'].unique().tolist()
-
-#         columns = st.columns((3,3,2))
-
-#         with columns[0]:
-#             city_selection = [st.multiselect("City",
-#                                             city, default=city)]
-#         with columns[1]:
-#             shelter_type_selection = [st.multiselect('Shelter Type',
-#                                                 shelter_type,
-#                                                 default = shelter_type)]
-#         with columns[2]:
-#             year_selection = [st.multiselect('Year',
-#                                             year, default = year)]                              
-     
-
-#         # gender_both = ['Males','Females']
-#         # all_age = ['15 years and over','15 to 24 years','25 to 54 years','55 years and over']
-#         # age_15_over = ['15 years and over']
-#         # age_15_24 = ['15 to 24 years']
-#         # age_25_54 = ['25 to 54 years']
-#         # age_55_over = ['55 years and over']
-
-#         ## Dataframe filter/mask
-
-#         mask1 = (df1['City'].isin(city_selection)) & (df1['ShelterType'].isin(shelter_type_selection)) & (df1['YEAR'].isin(year_selection))
-       
-
-
-        # st.subheader("Shelter type distribution")                    
-
-        # fig1 = px.line(df1[mask1], x = 'YEAR', y = 'Capacity', color='ShelterType', template='gridon')
-        # # fig1.update_layout( width=1000, height = 500)
-        # #fig1.update_layout({'plot_bgcolor':'rgba(0, 0, 0, 0)'})
-        # st.plotly_chart(fig1)
-
-        # data = [dict(
-        #         type = 'Scatter',
-        #         x = 'Date',
-        #         y = 'Capacity',
-        #         mode = 'markers',
-        #         transforms = [dict(
-        #                         type = 'aggregate',
-        #                         groups = df1['ShelterTypes'],
-        #                         aggregations = [dict(
-        #                             target= 'y', func ='sum', enabled = True
-        #                                         )]
-        #                     )]
-        #          )]
-
-        # fig1_dict = dict(data=data)
-        # pio.show(fig1.dict, validate=False)
-
-###         COMPARISION BY AGE
-# with container:
-
-#     with st.expander("Option 2 : Comaprison by Age"):
-
-        # st.markdown("___")
-        # st.subheader("Comparison by age")
-        # st.markdown("Age filter at top is NA for this section")
-        
-        # fig2=px.line(df[mask3], x='Date', y='Value', facet_col='Age group', template='gridon')
-        # fig2.update_layout( width=1200, height=500)
-        # st.plotly_chart(fig2)
-    
-        # columns = st.columns((2,2))
-
-        # with columns[0]:
-        #     fig3 = px.line(df[mask4], x='Date', y='Value', color_discrete_sequence=["black"], title="Age 15 and over", template='plotly')
-        #     fig3.update_layout(title_x=0.5, title_y=0.85)
-        #     fig3.update_layout({'plot_bgcolor':'rgba(0, 0, 0, 0)'})
-        #     st.plotly_chart(fig3)
-
-        #     fig5 = px.line(df[mask5], x='Date', y='Value', color_discrete_sequence=["purple"], title="Age 15-24", template='presentation')
-        #     fig5.update_layout(title_x=0.5, title_y=0.85)
-        #     fig5.update_layout({'plot_bgcolor':'rgba(0, 0, 0, 0)'})
-        #     st.plotly_chart(fig5)
-            
-        
-        # with columns[1]:
-        #     fig4 = px.line(df[mask7], x='Date', y='Value', color_discrete_sequence=["indigo"], title="Age 55 and over", template='ggplot2')
-        #     fig4.update_layout(title_x=0.5, title_y=0.85)
-        #     fig4.update_layout({'plot_bgcolor':'rgba(0, 0, 0, 0)'})
-        #     st.plotly_chart(fig4)
-
-        #     fig6 = px.line(df[mask6], x='Date', y='Value', color_discrete_sequence=["green"], title="Age 25-54", template='gridon')
-        #     fig6.update_layout(title_x=0.5, title_y=0.85)
-        #     fig6.update_layout({'plot_bgcolor':'rgba(0, 0, 0, 0)'})
-        #     st.plotly_chart(fig6)
-
-
-###     GOOGLE TRENDS
+###     DASHBOARD
 with container:
     # st.markdown("___")
     
@@ -141,11 +38,97 @@ with container:
     print(source_code)
     components.html(source_code, height = 868, width = 1350)
 
-#  dataset
-# with container:
-#     st.subheader("Filtered Dataset")
-#     st.dataframe(df[mask1])
-    
+###     MACHINE LEARNING
+with container:
+    with st.expander("ML algorithm"):
+       
+        df= pd.DataFrame(pd.read_csv("F:/Second term/5205/ML/combined.csv"))   
+        to_scale = df.drop(['Date', 'GDP',
+                            'Inflation'], axis=1)
+        model = pickle.load(open('model_5205', 'rb'))
+
+        #Normalization
+        sc= MinMaxScaler()
+        first = sc.fit_transform(to_scale)
+        scaled = pd.DataFrame(first, columns = to_scale.columns)
+        
+
+        X = scaled.drop(['Shelter occupancy'], axis=1)
+        y = scaled["Shelter occupancy"]
+
+        if st.button('Click the button to run the model'):
+            st.subheader("Random Forest Regressor Model")
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+            # regressor = RandomForestRegressor()
+            # yoyo = regressor.fit(X_train, y_train)
+            y_pred = model.predict(X_test)
+
+            mae = metrics.mean_absolute_error(y_test, y_pred)
+            
+            mse = metrics.mean_squared_error(y_test, y_pred)
+            
+            rmse = np.sqrt(metrics.mean_squared_error(y_test, y_pred))
+            
+            r2 = r2_score(y_test, y_pred)
+
+            columns = st.columns((1,1,1,1))
+
+            with columns[0]:
+                st.markdown("Mean absolute error: " + str(mae))
+            with columns[1]:
+                st.markdown("Mean squared error: " + str(mse))
+            with columns[2]:
+                st.markdown("Root mean squared error: " + str(rmse))
+            with columns[3]:
+                st.markdown("Coefficient of determination (R2): " + str(r2))
+
+           
+            st.markdown(" ")
+            st.caption("One decision tree from the random forest regressor model")
+            fn=X.columns
+            cn=['Shelter occupancy']
+            fig = plt.figure(figsize = (5,3), dpi = 1200)
+
+            tree.plot_tree(model.estimators_[1],
+                        feature_names = fn, 
+                        class_names=cn,
+                        filled=True,
+                        rounded= True,
+                        fontsize=7)
+                           
+            st.pyplot(fig)
+            
+        else:
+            st.write(' ') #space with no statement
+        
+ 
+
+
+
+
+###     GOOGLE MOBILITY
+
+with container:
+    with st.expander("Mobility"):
+        st.subheader("Mobility based on Google's dataset")
+        
+        htmlfile1=open("google mobility.html", 'r', encoding ='utf-8')
+        source_code1 = htmlfile1.read()
+        print(source_code1)
+        components.html(source_code1, height = 800, width = 1000)
+
+###     GOOGLE TRENDS
+
+with container:
+    with st.expander("Trends"):
+        st.subheader("Trends on web searches")
+        
+        htmlfile2=open("trends.html", 'r', encoding ='utf-8')
+        source_code2 = htmlfile2.read()
+        print(source_code2)
+        components.html(source_code2, height = 350, width = 1000)
+
 ##   CREDITS
 with container:
     st.markdown(" ")
