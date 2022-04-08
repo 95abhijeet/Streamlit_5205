@@ -42,7 +42,7 @@ with container:
 with container:
     with st.expander("ML algorithm"):
        
-        df= pd.DataFrame(pd.read_csv("F:/Second term/5205/ML/combined.csv"))   
+        df= pd.DataFrame(pd.read_csv("combined.csv"))   
         to_scale = df.drop(['Date', 'GDP',
                             'Inflation'], axis=1)
         model = pickle.load(open('model_5205', 'rb'))
